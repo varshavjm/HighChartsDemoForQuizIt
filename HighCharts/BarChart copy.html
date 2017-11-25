@@ -1,0 +1,310 @@
+
+<html>
+<head>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+ 
+
+</head>
+<body>
+<div style="float:none">
+<div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+<div id="container2" style="min-width: 310px; height: 500px; margin: 0 auto"></div>
+</div>
+<script>
+
+$(window).load(function(){
+var xAxisData=[];
+
+let seriesData=createDataForBarChart(xAxisData);
+
+Highcharts.chart('container1', {
+	chart: {
+		type: 'column'
+	},
+
+	scrollbar:{
+		enabled:true,
+		barBackgroundColor: 'gray',
+		barBorderRadius: 7,
+		barBorderWidth: 0,
+		buttonBackgroundColor: 'gray',
+		buttonBorderWidth: 0,
+		buttonArrowColor: 'yellow',
+		buttonBorderRadius: 7,
+		rifleColor: 'yellow',
+		trackBackgroundColor: 'white',
+		trackBorderWidth: 1,
+		trackBorderColor: 'silver',
+		trackBorderRadius: 7
+	},
+
+	title: {
+		text: 'Difficulty level question comparison between John and Jane'
+	},
+
+	legend: {
+		labelFormatter: function(){
+			//console.log(this.userOptions);
+			return this.userOptions.stack //+" questions solved by "+this.name;
+		}
+	},
+
+	xAxis: {
+		categories: xAxisData
+	},
+
+	yAxis: {
+		allowDecimals: false,
+		min: 0,
+		title: {
+			text: 'Number of Questions'
+		}
+	},
+
+	tooltip: {
+		formatter: function () {
+			return '<b>' + this.series.name + '</b><br/>' +
+				' solved: ' + this.y + '<br/>' +
+				'level: ' + this.series.userOptions.stack+'<br/>';
+		}
+	},
+
+	plotOptions: {
+		column: {
+			borderWidth: 1
+			// stacking: 'normal',
+			// grouping: false
+			//  shadow: false
+		},
+		series: {
+			cursor: 'pointer',
+			events: {
+				click: function (event) {
+					let quizName = event["point"]["category"];
+					draw_pie_chart("Quiz Questions Summary for " + quizName);
+				}
+			}
+		}
+	},
+
+	series: seriesData
+});
+
+//Second Highcharts Pie chart
+
+var colors = Highcharts.getOptions().colors,
+    categories = ['Arrays', 'Pointer', 'Conditionals', 'Loop'],
+    data = [{
+        y: 5,
+        color: colors[0],
+        drilldown: {
+            name: 'Arrays',
+            categories: ['Easy', 'Medium', 'Difficult'],
+            data: [2,1,2],
+            color: colors[0]
+        }
+    }, {
+        y: 7,
+        color: colors[1],
+        drilldown: {
+            name: 'Pointers',
+            categories: ['Easy', 'Medium', 'Difficult'],
+            data: [2, 2, 3],
+            color: colors[1]
+        }
+    }, {
+        y: 3,
+        color: colors[2],
+        drilldown: {
+            name: 'Conditionals',
+            categories: ['Easy', 'Medium', 'Difficult'],
+            data: [1,1,1],
+            color: colors[2]
+        }
+    }, {
+        y: 5,
+        color: colors[3],
+        drilldown: {
+            name: 'Loops',
+         categories: ['Easy', 'Medium', 'Difficult'],
+            data: [1, 1, 3],
+            color: colors[3]
+        }
+    }],
+    browserData = [],
+    versionsData = [],
+    i,
+    j,
+    dataLen = data.length,
+    drillDataLen,
+    brightness;
+
+
+// Build the data arrays
+for (i = 0; i < dataLen; i += 1) {
+    // add browser data.  VVIMP Technqiue to create required structure
+    browserData.push({
+        name: categories[i],
+        y: data[i].y,
+        color: data[i].color
+    });
+
+    // add version data
+    drillDataLen = data[i].drilldown.data.length;
+    for (j = 0; j < drillDataLen; j ++) {
+        brightness = 0.1 - (j / drillDataLen) /2;    //Dont change the paramter 2
+        versionsData.push({
+            name: data[i].drilldown.categories[j],
+            y: data[i].drilldown.data[j],
+            color: Highcharts.Color(data[i].color).brighten(brightness).get()
+        });
+    }
+}
+
+// draw_pie_chart('Quiz Questions Summary');
+
+// Create the chart
+function draw_pie_chart(withText) {
+
+	Highcharts.chart('container2', {
+		chart: {
+			type: 'pie'
+		},
+		title: {
+			text: withText
+		},
+		yAxis: {
+			title: {
+				text: 'Total percent of question share'
+			}
+		},
+		plotOptions: {
+			pie: {
+				shadow: false,
+				center: ['50%', '50%']
+			}
+		},
+		tooltip: {
+			formatter: function() {
+				return  '<b>'+this.point.name + ':</b> ' +this.y+"/"+this.total ;
+			}
+		},
+		series: [
+			{
+				name:"Topics",
+				data: browserData,
+				size: '60%',
+				dataLabels: {
+					formatter: function () {
+						return  this.point.name;
+					},
+					color: '#ffffff',
+					distance: -40
+				},
+			},
+			{
+				name: 'Number of Questions',
+				data: versionsData,
+				size: '80%',
+				innerSize: '60%',
+				dataLabels: {
+					formatter: function () {
+						// display only if larger than 1
+						return  '<b>'+this.point.name + ':</b> ' +this.y ;
+					}
+				}
+			}
+		]
+	});
+}
+
+function createDataForBarChart(xAxisData, seriesData){
+	var arrayOfUsers;
+	//Get data using AJAX
+	$.ajax({ 
+	    type: 'GET', 
+	    url: "http://localhost:8001/Desktop/Charts/HighChartsDemoForQuizIt/data.json",
+	    async:false,
+	    success: function (data) { 
+	    	arrayOfUsers=data;
+	    }
+	});
+	//TODO Perfoem exception hadling for undefined type
+	var quizFirst=arrayOfUsers[0].quiz;
+	var quizSecond=arrayOfUsers[1].quiz;
+
+	let maxLen= Math.max(quizFirst.length,quizSecond.length);
+
+	//Generate Quiz data
+	for(let i=0;i<maxLen;i++){
+		xAxisData.push("Quiz"+(i+1));
+		console.log(xAxisData[i]);
+	}
+
+	//Generate Series data
+	let seriesOfJohn = generateUserBasedSeriesData(arrayOfUsers[0], maxLen);
+	let seriesOfJane = generateUserBasedSeriesData(arrayOfUsers[1], maxLen);
+	return interleave(seriesOfJohn,seriesOfJane);
+}
+
+function interleave(Series1, Series2){
+	
+	SeriesData=[];
+	for(let i=0;i<3;i++){
+		SeriesData.push(Series1[i]);
+		SeriesData.push(Series2[i]);	
+	}
+
+	return SeriesData;
+}
+
+
+function generateUserBasedSeriesData(user, maxLen){
+	//Generate series data
+	//Collect Jons data
+	let quizData = user.quiz;
+	let easyData=[],mediumData=[],hardData=[];
+	let seriesData = [];
+	for(let i=0;i<maxLen;i++){
+		let currentData= quizData[i];
+		if(currentData!==undefined){
+			easyData.push(currentData.easy);
+			mediumData.push(currentData.medium);
+			hardData.push(currentData.hard);
+		}
+		else{
+			easyData.push(0);
+			mediumData.push(0);
+			hardData.push(0);
+		}
+	}
+	
+	var levels=["Easy","Medium","Hard"];
+	var levelData = [easyData, mediumData, hardData];
+
+	//Please define your color scheme for easy medim hard here
+	var colors=["#33cc33","#ffcc00","#ff3300"];
+	for(var i=0;i<3;i++){
+		seriesData.push({
+			name:user.name,
+			data:levelData[i],
+			stack:levels[i],
+			color:colors[i]
+		});
+	}
+
+	console.log(seriesData);
+	return seriesData;
+}
+
+
+});
+
+</script>
+</body>
+</html>
