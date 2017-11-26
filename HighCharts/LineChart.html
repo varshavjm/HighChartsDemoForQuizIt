@@ -1,0 +1,191 @@
+<html>
+<head>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>
+ 
+
+</head>
+<body>
+<div style="float:none">
+<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+</div>
+<script>
+
+$(window).load(function(){
+
+	var xAxisData=[];
+	createXAxisDataForLineChart(xAxisData);
+	var globalMap=[];
+	var seriesData=createSeriesData(globalMap);
+
+	console.log(seriesData);
+	drawLineChart(seriesData,globalMap);
+
+	//Function prototypes and definitions
+	function createSeriesData(globalMap){
+		//Ajax call
+		var arrayOfUsers;
+		//Get data using AJAX
+		$.ajax({ 
+		    type: 'GET', 
+		    url: "http://localhost:8001/Desktop/Charts/HighCharts/data.json",
+		    async:false,
+		    success: function (data) { 
+		    	arrayOfUsers=data;
+		    }
+		});
+
+		var object1= getObjectForUser(arrayOfUsers[0]);
+
+		//Generate global Map 
+		let matrix=generateEasyMediumHardData(arrayOfUsers[0].quiz);	
+		globalMap[arrayOfUsers[0].userID]=matrix;
+
+
+		var object2= getObjectForUser(arrayOfUsers[1]);
+		let matrix2=generateEasyMediumHardData(arrayOfUsers[1].quiz);	
+		globalMap[arrayOfUsers[1].userID]=matrix2;
+
+
+		//Print the global map after constructing
+		console.log("Global Map");
+		console.log(globalMap);		//3
+
+
+		var seriesData=[];
+		seriesData.push(object1);
+		seriesData.push(object2);
+		return seriesData;
+	}
+
+	//Creates a 2d matrix of easy medium and hard questions
+	function generateEasyMediumHardData(quizData){
+		let easyData=[],mediumData=[],hardData=[];
+		for(let i=0;i<quizData.length;i++){
+		let currentData= quizData[i];
+		if(currentData!==undefined){
+			easyData.push(currentData.easy);
+			mediumData.push(currentData.medium);
+			hardData.push(currentData.hard);
+		}
+	}
+		let matrix=[easyData,mediumData,hardData];
+		console.log("Matrix");
+		console.log(matrix);
+		return matrix;
+
+	}
+
+
+
+	
+	function getObjectForUser(object){
+		var objectToReturn={};
+		var quizObject=object.quiz;
+		var dataArray=[];
+
+		for(let i=0;i<quizObject.length;i++){
+			dataArray.push(quizObject[i].score);
+		}
+		objectToReturn={"name":object.name,"userID":object.userID,"data":dataArray};
+		return objectToReturn;
+	}
+
+
+
+	function createXAxisDataForLineChart(xAxisData){
+		var arrayOfUsers;
+		//Get data using AJAX
+		$.ajax({ 
+		    type: 'GET', 
+		    url: "http://localhost:8001/Desktop/Charts/HighCharts/data.json",
+		    async:false,
+		    success: function (data) { 
+		    	arrayOfUsers=data;
+		    }
+		});
+		//TODO Perfoem exception hadling for undefined type
+		var quizFirst=arrayOfUsers[0].quiz;
+		var quizSecond=arrayOfUsers[1].quiz;
+
+		let maxLen= Math.max(quizFirst.length,quizSecond.length);
+
+		//Generate Quiz  X Axis data
+		for(let i=0;i<maxLen;i++){
+			xAxisData.push("Quiz"+(i+1));
+		}
+	}
+
+
+
+
+
+	function drawLineChart(seriesData,globalMap){
+
+
+	Highcharts.chart('container', {
+
+	    title: {
+	        text: 'Quiz-wise comparison between Users'
+	    },
+	    xAxis:{
+	     categories: xAxisData
+	    },
+
+	    yAxis: {
+	        title: {
+	            text: 'Score'
+	        }
+	    },
+	    tooltip: {
+				useHTML: true,
+				formatter: function(){
+					var userID= this.point.series.userOptions.userID;
+					var index=this.point.index;
+					tooltipHtml = this.x +" for <b>"+this.series.name+ '</b><br/>Score:' + this.y+"<br/>"+"Easy:"+globalMap[userID][0][index]+"<br/>"+"Medium:"+globalMap[userID][1][index]+"<br/>"+"Hard:"+globalMap[userID][2][index];
+					return tooltipHtml;
+				}
+			},
+	    legend: {
+	        layout: 'vertical',
+	        align: 'right',
+	        verticalAlign: 'middle'
+	    },
+
+	    plotOptions: {
+	        series: {
+	            label: {
+	                connectorAllowed: false
+	            },
+	           cursor:'pointer'
+
+	        }
+	    },
+
+	    series:seriesData,
+	    responsive: {
+	        rules: [{
+	            condition: {
+	                maxWidth: 500
+	            },
+	            chartOptions: {
+	                legend: {
+	                    layout: 'horizontal',
+	                    align: 'center',
+	                    verticalAlign: 'bottom'
+	                }
+	            }
+	        }]
+	    }
+
+	});
+	}
+});
+
+</script>
+</body>
+</html>
