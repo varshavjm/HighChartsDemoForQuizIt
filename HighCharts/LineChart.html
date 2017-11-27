@@ -274,6 +274,11 @@ $(window).load(function(){
 
 	function draw_pie_chart(title,quizID) {
 
+
+	clearContainer('container1');
+	clearContainer('container2');
+	
+
 	//Printed the Quiz ID
 	let user1Quiz=arrayOfUsers[0].quiz[quizID];
 	let user2Quiz=arrayOfUsers[1].quiz[quizID];
@@ -291,13 +296,24 @@ $(window).load(function(){
 	}
 
 	
-	var browserData=[],versionsData=[];
-	generatePieChartData(browserData,versionsData,quizID1);
-	//generatePieChartData(browserData,versionsData,quizID1);
+	let browserData1=[],versionsData1=[],browserData2=[],versionsData2=[];
 	
-	generatePieChart(title,browserData,versionsData,'container1')
-	generatePieChart(title,browserData,versionsData,'container2')
-	//generate another version for user2;
+	if(quizID1!=undefined){
+	generatePieChartData(browserData1,versionsData1,quizID1);
+	generatePieChart(title,browserData1,versionsData1,'container1')
+	//generatePieChartData(browserData,versionsData,quizID1);
+	}
+
+	if(quizID2!=undefined){
+	generatePieChartData(browserData2,versionsData2,quizID2);
+	generatePieChart(title,browserData2,versionsData2,'container2')
+	}
+	}
+
+	//Clear pie chart containers
+	function clearContainer(container){
+
+		$("#"+container).empty();
 	}
 	
 
