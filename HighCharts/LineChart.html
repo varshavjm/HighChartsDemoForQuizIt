@@ -18,46 +18,43 @@
 
 $(window).load(function(){
 
-	var xAxisData=[];
+	var xAxisData=[],arrayOfUsers=[];
 	createXAxisDataForLineChart(xAxisData);
 	var globalMap=[];
 	var seriesData=createSeriesData(globalMap);
+	console.log("Array of users ");
+	console.log(arrayOfUsers);
 
-	console.log(seriesData);
-	drawLineChart(seriesData,globalMap);
+	drawLineChart(seriesData,globalMap,arrayOfUsers);
 
 	//Function prototypes and definitions
 	function createSeriesData(globalMap){
 		//Ajax call
-		var arrayOfUsers;
 		//Get data using AJAX
+		let tempData=[];
 		$.ajax({ 
 		    type: 'GET', 
 		    url: "http://localhost:8001/Desktop/Charts/HighCharts/data.json",
 		    async:false,
 		    success: function (data) { 
-		    	arrayOfUsers=data;
+		    	console.log(data);
+		    	tempData=data;
 		    }
 		});
-
+		arrayOfUsers=tempData;		
 		var object1= getObjectForUser(arrayOfUsers[0]);
+
 
 		//Generate global Map - The map is needed for accesing the number of easy, medium and Difficult questions
 		//inside the tooltip of line chart
 
 		let matrix=generateEasyMediumHardData(arrayOfUsers[0].quiz);	
 		globalMap[arrayOfUsers[0].userID]=matrix;
-
+		
 
 		var object2= getObjectForUser(arrayOfUsers[1]);
 		let matrix2=generateEasyMediumHardData(arrayOfUsers[1].quiz);	
 		globalMap[arrayOfUsers[1].userID]=matrix2;
-
-
-		// //Print the global map after constructing
-		// console.log("Global Map");
-		// console.log(globalMap);		
-
 
 		var seriesData=[];
 		seriesData.push(object1);
@@ -98,16 +95,19 @@ $(window).load(function(){
 
 
 	function createXAxisDataForLineChart(xAxisData){
-		var arrayOfUsers;
+		//var arrayOfUsers;
 		//Get data using AJAX
+		var tempData=[];
 		$.ajax({ 
 		    type: 'GET', 
 		    url: "http://localhost:8001/Desktop/Charts/HighCharts/data.json",
 		    async:false,
 		    success: function (data) { 
-		    	arrayOfUsers=data;
+		    	console.log(data);
+		    	tempData=data;
 		    }
 		});
+		arrayOfUsers=tempData;
 		//TODO Perfoem exception hadling for undefined type
 		var quizFirst=arrayOfUsers[0].quiz;
 		var quizSecond=arrayOfUsers[1].quiz;
@@ -124,7 +124,7 @@ $(window).load(function(){
 
 
 
-	function drawLineChart(seriesData,globalMap){
+	function drawLineChart(seriesData,globalMap,){
 
 
 	Highcharts.chart('container', {
@@ -165,7 +165,9 @@ $(window).load(function(){
 	           events: {
 				click: function (event) {
 					let quizName = event["point"]["category"];
-					draw_pie_chart("Quiz Questions Summary for " + quizName);
+					//get the index of Quiz and retrieve the Quiz ID from both userObjects
+					let index=event["point"]["index"];
+					draw_pie_chart("Quiz Questions Summary for " + quizName,index);
 				}
 			}
 
@@ -263,8 +265,25 @@ $(window).load(function(){
 
 
 
-	function draw_pie_chart(title) {
+	function draw_pie_chart(title,quizID) {
 
+	//Printed the Quiz ID
+	let user1Quiz=arrayOfUsers[0].quiz[quizID];
+	let user2Quiz=arrayOfUsers[1].quiz[quizID];
+	//These varaibles contain quiz ID for both users
+	
+	let quizID1,quizID2;
+	if(user1Quiz!=undefined){
+		console.log(user1Quiz.id);
+		quizID1=user1Quiz.id;
+
+	}
+	if(user2Quiz!=undefined){
+		console.log(user2Quiz.id);
+		quizID2=user2Quiz.id;
+	}
+
+	
 	var browserData=[],versionsData=[];
 	generatePieChartData(browserData,versionsData);
 	Highcharts.chart('container2', {
