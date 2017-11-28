@@ -9,7 +9,7 @@
 				"hard": 2
 			},
 			{
-				"topic": "Pointer",
+				"topic": "Exceptions",
 				"total": 7,
 				"easy": 2,
 				"medium": 2,
@@ -56,40 +56,21 @@
 				"hard": 1
 			},
 			{
-				"topic": "Loops",
+				"topic": "Abstract",
 				"total": 5,
 				"easy": 1,
 				"medium": 1,
 				"hard": 3
-			}
-		]
-	},
-	{
-		"id": 102,
-		"total": 20,
-		"data": [{
-				"topic": "Arrays",
-				"total": 5,
-				"easy": 2,
-				"medium": 1,
-				"hard": 2
 			},
 			{
-				"topic": "Pointer",
-				"total": 7,
-				"easy": 2,
-				"medium": 2,
+				"topic": "Inheritance",
+				"total": 5,
+				"easy": 1,
+				"medium": 1,
 				"hard": 3
 			},
 			{
-				"topic": "Conditional",
-				"total": 3,
-				"easy": 1,
-				"medium": 1,
-				"hard": 1
-			},
-			{
-				"topic": "Loops",
+				"topic": "Polymorphism",
 				"total": 5,
 				"easy": 1,
 				"medium": 1,
@@ -122,7 +103,54 @@
 				"hard": 1
 			},
 			{
-				"topic": "Loops",
+				"topic": "Generics",
+				"total": 5,
+				"easy": 1,
+				"medium": 1,
+				"hard": 3
+			},
+			{
+				"topic": "Inheritance",
+				"total": 4,
+				"easy": 1,
+				"medium": 5,
+				"hard": 1
+			},
+			{
+				"topic": "Abstract",
+				"total": 5,
+				"easy": 2,
+				"medium": 1,
+				"hard": 2
+			}
+		]
+	},
+	{
+		"id": 102,
+		"total": 20,
+		"data": [{
+				"topic": "Arrays",
+				"total": 5,
+				"easy": 2,
+				"medium": 1,
+				"hard": 2
+			},
+			{
+				"topic": "Pointer",
+				"total": 7,
+				"easy": 2,
+				"medium": 2,
+				"hard": 3
+			},
+			{
+				"topic": "Conditional",
+				"total": 3,
+				"easy": 1,
+				"medium": 1,
+				"hard": 1
+			},
+			{
+				"topic": "Abstract",
 				"total": 5,
 				"easy": 1,
 				"medium": 1,

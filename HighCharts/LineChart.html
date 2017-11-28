@@ -195,81 +195,119 @@ $(window).load(function(){
 	});
 	}
 
-	function generatePieChartData(browserData,versionsData,quizID){
+function generatePieChartData(browserData,versionsData,quizID){
+		console.log("generate ");
 		//get AJAX for entire data, create a map of QuizID1->data
+		var tempData=[];
+		$.ajax({ 
+		    type: 'GET', 
+		    url: "http://localhost:8001/Desktop/Charts/HighCharts/DonutData.json",
+		    async:false,
+		    success: function (data) { 
+		    	console.log(data);
+		    	tempData=data;
+		    }
+		});
+
+		var quizObject=[];
+		for(let index=0;index<tempData.length;index++){
+			if(tempData[index].id===quizID){
+				quizObject=tempData[index];
+				break;
+			}
+
+		}
+
+		var dataNew=[],colors = Highcharts.getOptions().colors,topicCategories=[];
+		for(var i=0;i<quizObject.data.length;i++){
+			topicCategories.push(quizObject.data[i].topic);
+
+			dataNew.push({
+				'y':quizObject.data[i].total,
+				'color':colors[i],
+				'drilldown':{
+					'name':quizObject.data[i].topic,
+					'categories':['Easy','Medium','Difficult'],
+					'data':[quizObject.data[i].easy,quizObject.data[i].medium,quizObject.data[i].difficult],
+					'colors':colors[i]
+				}
+
+			});
+		}
+		console.log("New data ");
+		console.log(dataNew);
 
 
 
+		var data = [{
+	        y: 5,
+	        color: colors[0],
+	        drilldown: {
+	            name: 'Arrays',
+	            categories: ['Easy', 'Medium', 'Difficult'],
+	            data: [2,1,2],
+	            color: colors[0]
+	        }
+	    }, 
+	    {
+	        y: 7,
+	        color: colors[1],
+	        drilldown: {
+	            name: 'Pointers',
+	            categories: ['Easy', 'Medium', 'Difficult'],
+	            data: [2, 2, 3],
+	            color: colors[1]
+	        }
+	    },
+	     {
+	        y: 3,
+	        color: colors[2],
+	        drilldown: {
+	            name: 'Conditionals',
+	            categories: ['Easy', 'Medium', 'Difficult'],
+	            data: [1,1,1],
+	            color: colors[2]
+	        }
+	    },
+	     {
+	        y: 5,
+	        color: colors[3],
+	        drilldown: {
+	            name: 'Loops',
+	         categories: ['Easy', 'Medium', 'Difficult'],
+	            data: [1, 1, 3],
+	            color: colors[3]
+	        }
+	    }],
+	    i,
+	    j,
+	    dataLen = data.length,
+	    drillDataLen,
+	    brightness;
 
-		var colors = Highcharts.getOptions().colors,
-    categories = ['Arrays', 'Pointer', 'Conditionals', 'Loop'],
-    data = [{
-        y: 5,
-        color: colors[0],
-        drilldown: {
-            name: 'Arrays',
-            categories: ['Easy', 'Medium', 'Difficult'],
-            data: [2,1,2],
-            color: colors[0]
-        }
-    }, {
-        y: 7,
-        color: colors[1],
-        drilldown: {
-            name: 'Pointers',
-            categories: ['Easy', 'Medium', 'Difficult'],
-            data: [2, 2, 3],
-            color: colors[1]
-        }
-    }, {
-        y: 3,
-        color: colors[2],
-        drilldown: {
-            name: 'Conditionals',
-            categories: ['Easy', 'Medium', 'Difficult'],
-            data: [1,1,1],
-            color: colors[2]
-        }
-    }, {
-        y: 5,
-        color: colors[3],
-        drilldown: {
-            name: 'Loops',
-         categories: ['Easy', 'Medium', 'Difficult'],
-            data: [1, 1, 3],
-            color: colors[3]
-        }
-    }],
-    i,
-    j,
-    dataLen = data.length,
-    drillDataLen,
-    brightness;
 
+		// Build the data arrays
+		for (i = 0; i < dataLen; i += 1) {
+		    // add browser data.  VVIMP Technqiue to create required structure
+		    browserData.push({
+		        name: topicCategories[i],
+		        y: data[i].y,
+		        color: data[i].color
+		    });
 
-	// Build the data arrays
-	for (i = 0; i < dataLen; i += 1) {
-	    // add browser data.  VVIMP Technqiue to create required structure
-	    browserData.push({
-	        name: categories[i],
-	        y: data[i].y,
-	        color: data[i].color
-	    });
+		    // add version data
+		    drillDataLen = data[i].drilldown.data.length;
+		    for (j = 0; j < drillDataLen; j ++) {
+		        brightness = 0.1 - (j / drillDataLen) /2;    //Dont change the paramter 2
+		        versionsData.push({
+		            name: data[i].drilldown.categories[j],
+		            y: data[i].drilldown.data[j],
+		            color: Highcharts.Color(data[i].color).brighten(brightness).get()
+		        });
+		    }
+		}
 
-	    // add version data
-	    drillDataLen = data[i].drilldown.data.length;
-	    for (j = 0; j < drillDataLen; j ++) {
-	        brightness = 0.1 - (j / drillDataLen) /2;    //Dont change the paramter 2
-	        versionsData.push({
-	            name: data[i].drilldown.categories[j],
-	            y: data[i].drilldown.data[j],
-	            color: Highcharts.Color(data[i].color).brighten(brightness).get()
-	        });
-	    }
 	}
-
-	}
-
 
 
 	function draw_pie_chart(title,quizID) {
